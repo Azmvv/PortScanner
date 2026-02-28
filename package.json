@@ -1,0 +1,25 @@
+{
+  "name": "port-scanner",
+  "version": "1.0.0",
+  "description": "A fast and lightweight TCP port scanner built with Node.js",
+  "main": "Scanner.js",
+  "bin": {
+    "port-scanner": "./Scanner.js"
+  },
+  "scripts": {
+    "scan": "node Scanner.js",
+    "test": "node Scanner.js --help"
+  },
+  "keywords": [
+    "port-scanner",
+    "network",
+    "tcp",
+    "security",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
