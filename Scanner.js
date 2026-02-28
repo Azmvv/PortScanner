@@ -3,7 +3,6 @@
 const net = require('net');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 
-// ─── ANSI Colors ───────────────────────────────────────────
 const colors = {
   reset: '\x1b[0m',
   bright: '\x1b[1m',
@@ -14,7 +13,6 @@ const colors = {
   gray: '\x1b[90m',
 };
 
-// ─── Well-Known Port Services ──────────────────────────────
 const KNOWN_SERVICES = {
   20: 'FTP (Data)',
   21: 'FTP (Control)',
@@ -50,7 +48,6 @@ const KNOWN_SERVICES = {
   27017: 'MongoDB',
 };
 
-// ─── Banner Grabbing ───────────────────────────────────────
 function grabBanner(host, port, timeout = 3000) {
   return new Promise((resolve) => {
     const socket = new net.Socket();
@@ -59,7 +56,6 @@ function grabBanner(host, port, timeout = 3000) {
     socket.setTimeout(timeout);
 
     socket.connect(port, host, () => {
-      // Some services send a banner upon connection
       socket.write('\r\n');
     });
 
@@ -84,7 +80,6 @@ function grabBanner(host, port, timeout = 3000) {
   });
 }
 
-// ─── Single Port Scanner ──────────────────────────────────
 function scanPort(host, port, timeout = 2000) {
   return new Promise((resolve) => {
     const socket = new net.Socket();
@@ -108,7 +103,6 @@ function scanPort(host, port, timeout = 2000) {
   });
 }
 
-// ─── Port Range Scanner with Concurrency Control ──────────
 async function scanPorts(host, startPort, endPort, options = {}) {
   const {
     timeout = 2000,
@@ -129,7 +123,6 @@ async function scanPorts(host, startPort, endPort, options = {}) {
     ports.push(p);
   }
 
-  // Process ports in batches for concurrency control
   for (let i = 0; i < ports.length; i += concurrency) {
     const batch = ports.slice(i, i + concurrency);
     const batchResults = await Promise.all(
@@ -162,7 +155,6 @@ async function scanPorts(host, startPort, endPort, options = {}) {
         results.push(result);
       }
 
-      // Progress bar
       const progress = Math.round((scanned / totalPorts) * 100);
       process.stdout.write(
         `\r  ${colors.gray}Progress: [${
@@ -173,14 +165,11 @@ async function scanPorts(host, startPort, endPort, options = {}) {
     }
   }
 
-  // Clear progress line and print summary
   process.stdout.write('\r' + ' '.repeat(80) + '\r');
   printSummary(results, openCount, totalPorts);
 
   return results;
 }
-
-// ─── Common Ports Scan ────────────────────────────────────
 async function scanCommonPorts(host, options = {}) {
   const commonPorts = [
     21, 22, 23, 25, 53, 80, 110, 119, 123, 143, 161, 194,
@@ -283,7 +272,6 @@ ${colors.bright}Examples:${colors.reset}
 `);
 }
 
-// ─── CLI Argument Parser ──────────────────────────────────
 function parseArgs(argv) {
   const args = argv.slice(2);
 
@@ -350,7 +338,6 @@ function parseArgs(argv) {
     }
   }
 
-  // Validate ports
   if (config.startPort < 1 || config.endPort > 65535 || config.startPort > config.endPort) {
     console.error(`${colors.red}Error: Invalid port range (must be 1-65535)${colors.reset}`);
     process.exit(1);
@@ -359,7 +346,6 @@ function parseArgs(argv) {
   return config;
 }
 
-// ─── Main ─────────────────────────────────────────────────
 async function main() {
   const config = parseArgs(process.argv);
   const startTime = Date.now();
@@ -373,7 +359,6 @@ async function main() {
       bannerGrab: config.bannerGrab,
     });
   } else if (config.customPorts) {
-    // Scan specific ports
     console.log(`\n${colors.cyan}${colors.bright}══════════════════════════════════════════════════${colors.reset}`);
     console.log(`${colors.cyan}  PORT SCANNER - Custom Ports${colors.reset}`);
     console.log(`${colors.cyan}${colors.bright}══════════════════════════════════════════════════${colors.reset}`);
@@ -424,7 +409,6 @@ async function main() {
   console.log(`  ${colors.gray}Scan completed in ${elapsed}s${colors.reset}\n`);
 }
 
-// ─── Module Export & CLI Entry ─────────────────────────────
 module.exports = { scanPort, scanPorts, scanCommonPorts, grabBanner, KNOWN_SERVICES };
 
 if (require.main === module) {
